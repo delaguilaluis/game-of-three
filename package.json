@@ -1,0 +1,28 @@
+{
+  "name": "game-of-three",
+  "version": "1.0.0",
+  "description": "A code challenge implementation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests to run (yet!)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/delaguilaluis/game-of-three.git"
+  },
+  "keywords": [
+    "game",
+    "three",
+    "code",
+    "challenge"
+  ],
+  "author": "Luis Del Águila <luis@delaguilaluis.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/delaguilaluis/game-of-three/issues"
+  },
+  "homepage": "https://github.com/delaguilaluis/game-of-three#readme",
+  "devDependencies": {
+    "standard": "^17.0.0"
+  }
+}
