@@ -4,7 +4,6 @@ const { Server } = require('socket.io')
 const Client = require('socket.io-client')
 const listener = require('../listener')
 
-const BOT = 'Bot'
 let io, clientSocket
 
 test('setup', (t) => {
@@ -39,9 +38,7 @@ test('when P1 starts a game against a bot', (t) => {
         'number',
         'client should receive a starting number'
       )
-    }
-
-    if (details.player === BOT) {
+    } else {
       t.pass('client should see a bot move')
       clientSocket.removeAllListeners()
     }
@@ -120,7 +117,7 @@ test('when playing against a bot', (t) => {
   })
 
   clientSocket.on('update', (details) => {
-    if (details.player === BOT) {
+    if (details.player !== 'Luis') {
       // Human plays 57, so bot plays starting on 19 and chooses 18
       t.equal(details.number, 6, 'a corresponding result should be signaled')
       t.equal(details.choice, '-1', "the bot's choice should be included in the signal")

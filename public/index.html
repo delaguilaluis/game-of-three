@@ -10,7 +10,16 @@
   <h1>Hello world</h1>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    var socket = io();
+    const options = {
+      auth: {
+        token: Date.now().toString(36)
+      }
+    }
+
+    const socket = io(options);
+    socket.on('message', console.log)
+    socket.on('update', console.log)
+    socket.on('end', console.log)
   </script>
 </body>
 </html>

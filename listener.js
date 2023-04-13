@@ -1,7 +1,7 @@
-const BOT = 'Bot'
+const BOT = 'bot'
 
 function isBotPlaying (players) {
-  return players.includes(BOT)
+  return Boolean(players[BOT])
 }
 
 function makeBotChoice (number) {
@@ -22,12 +22,12 @@ function isGameOver (number) {
 }
 
 function listener (socket) {
-  const players = []
+  const players = {}
 
   function makeBotMove (number) {
     const botChoice = makeBotChoice(number)
     const details = {
-      player: BOT,
+      player: players[BOT],
       choice: botChoice,
       number: (number + Number.parseInt(botChoice, 10)) / 3
     }
@@ -46,13 +46,19 @@ function listener (socket) {
     const argOverride = Number(process.argv[2])
     const number = envOverride || argOverride || Math.round(Math.random() * 100)
 
+    players[socket.handshake.auth.token] = player
+
+    // First move; player does not choose
     socket.emit('update', {
       player,
       number
     })
 
     if (!isBotPlaying(players)) {
-      players.push(player, BOT)
+      // Add a bot and perform a move
+      const botNames = ['Einstein', 'Curie', 'Baldor', 'Hypathia', 'Euler']
+      const randomIndex = Math.round(Math.random() * 10) % 4
+      players[BOT] = `${botNames[randomIndex]} (bot)`
       makeBotMove(number)
     }
   })
@@ -63,7 +69,11 @@ function listener (socket) {
     }
 
     const number = (move.number + Number.parseInt(move.choice, 10)) / 3
-    socket.emit('update', { ...move, number })
+    socket.emit('update', {
+      ...move,
+      number,
+      player: players[socket.handshake.auth.token]
+    })
 
     if (isGameOver(number)) {
       socket.emit('end')
