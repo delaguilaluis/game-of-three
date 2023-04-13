@@ -28,9 +28,12 @@ module.exports = function listener (socket) {
           break
       }
 
-      socket.emit('update', {
-        number: (move.number + addedValue) / 3
-      })
+      const number = (move.number + addedValue) / 3
+      if (number === 1) {
+        socket.emit('end')
+      }
+
+      socket.emit('update', { number })
     }
   })
 }

@@ -44,21 +44,7 @@ test('when P1 starts', (t) => {
   })
 })
 
-test('when P2 makes a +1 move', (t) => {
-  t.plan(1)
-
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '+1',
-    number: 56
-  })
-
-  clientSocket.once('update', (details) => {
-    t.equal(details.number, 19, 'an updated number should be signaled')
-  })
-})
-
-test('when P2 makes a +1 move', (t) => {
+test('when a player makes a +1 move', (t) => {
   t.plan(1)
 
   clientSocket.emit('move', {
@@ -72,7 +58,7 @@ test('when P2 makes a +1 move', (t) => {
   })
 })
 
-test('when P2 makes a -1 move', (t) => {
+test('when a player makes a -1 move', (t) => {
   t.plan(1)
 
   clientSocket.emit('move', {
@@ -86,7 +72,7 @@ test('when P2 makes a -1 move', (t) => {
   })
 })
 
-test('when P2 makes a +0 move', (t) => {
+test('when a player makes a +0 move', (t) => {
   t.plan(1)
 
   clientSocket.emit('move', {
@@ -97,6 +83,24 @@ test('when P2 makes a +0 move', (t) => {
 
   clientSocket.once('update', (details) => {
     t.equal(details.number, 10, 'a corresponding result should be signaled')
+  })
+})
+
+test('when the number reaches 1', (t) => {
+  t.plan(2)
+
+  clientSocket.emit('move', {
+    player: 'Luis',
+    choice: '+1',
+    number: 2
+  })
+
+  clientSocket.once('update', (details) => {
+    t.equal(details.number, 1, 'a corresponding result should be signaled')
+  })
+
+  clientSocket.once('end', () => {
+    t.pass('an `end` event is emitted')
   })
 })
 
