@@ -22,7 +22,7 @@ test('setup', (t) => {
     clientSocket.on('connect', () => {
       t.pass('client should succesfully connect')
 
-      clientSocket.on('message', () => {
+      clientSocket.once('message', () => {
         t.pass('client should receive an instructions message')
         t.end()
       })
@@ -34,13 +34,69 @@ test('when P1 starts', (t) => {
   t.plan(2)
 
   clientSocket.emit('start', 'Luis')
-  clientSocket.on('move', (move) => {
-    t.equal(move.player, 'Luis', 'should specify the player making the move')
+  clientSocket.once('update', (details) => {
+    t.equal(details.player, 'Luis', 'should specify the player making the move')
     t.equal(
-      typeof move.number,
+      typeof details.number,
       'number',
-      'client should receive a random number'
+      'client should receive a starting number'
     )
+  })
+})
+
+test('when P2 makes a +1 move', (t) => {
+  t.plan(1)
+
+  clientSocket.emit('move', {
+    player: 'Luis',
+    choice: '+1',
+    number: 56
+  })
+
+  clientSocket.once('update', (details) => {
+    t.equal(details.number, 57, 'an updated number should be signaled')
+  })
+})
+
+test('when P2 makes a +1 move', (t) => {
+  t.plan(1)
+
+  clientSocket.emit('move', {
+    player: 'Luis',
+    choice: '+1',
+    number: 56
+  })
+
+  clientSocket.once('update', (details) => {
+    t.equal(details.number, 57, 'an updated number should be signaled')
+  })
+})
+
+test('when P2 makes a -1 move', (t) => {
+  t.plan(1)
+
+  clientSocket.emit('move', {
+    player: 'Luis',
+    choice: '-1',
+    number: 56
+  })
+
+  clientSocket.once('update', (details) => {
+    t.equal(details.number, 55, 'an updated number should be signaled')
+  })
+})
+
+test('when P2 makes a +0 move', (t) => {
+  t.plan(1)
+
+  clientSocket.emit('move', {
+    player: 'Luis',
+    choice: '+0',
+    number: 56
+  })
+
+  clientSocket.once('update', (details) => {
+    t.equal(details.number, 56, 'the same number should be signaled')
   })
 })
 

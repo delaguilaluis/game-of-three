@@ -25,6 +25,10 @@ node simulation.js 56
 * The game doesn't require persistance, thus modelling it with API resources
   doesn't make sense now. I'll give WebSockets a try.
 
+* What happens if a request to start a game occurs mid game? I'll build a
+  working version without validation any of this scenarios for starters.
+  * Other scenarios to consider: player authentication?
+
 ### Assumptions
 
 * The random number generated in the first turn should be between 0 and 100.
