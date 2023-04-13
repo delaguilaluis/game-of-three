@@ -1,5 +1,7 @@
-function isAgainstBot (players) {
-  return players.includes('bot')
+const BOT = 'Bot'
+
+function isBotPlaying (players) {
+  return players.includes(BOT)
 }
 
 function makeBotChoice (number) {
@@ -15,14 +17,26 @@ function makeBotChoice (number) {
   return '-1'
 }
 
-function checkGameOver (number, socket) {
-  if (number === 1) {
-    socket.emit('end')
-  }
+function isGameOver (number) {
+  return number === 1
 }
 
 function listener (socket) {
   const players = []
+
+  function makeBotMove (number) {
+    const botChoice = makeBotChoice(number)
+    const details = {
+      player: BOT,
+      choice: botChoice,
+      number: (number + Number.parseInt(botChoice, 10)) / 3
+    }
+
+    socket.emit('update', details)
+    if (isGameOver(details.number)) {
+      socket.emit('end')
+    }
+  }
 
   socket.emit('message', 'To start a game, emit a `start` event with your name')
 
@@ -32,12 +46,14 @@ function listener (socket) {
     const argOverride = Number(process.argv[2])
     const number = envOverride || argOverride || Math.round(Math.random() * 100)
 
-    if (players.length === 0) {
-      players.push(player, 'bot')
-      socket.emit('update', {
-        player,
-        number
-      })
+    socket.emit('update', {
+      player,
+      number
+    })
+
+    if (!isBotPlaying(players)) {
+      players.push(player, BOT)
+      makeBotMove(number)
     }
   })
 
@@ -47,20 +63,15 @@ function listener (socket) {
     }
 
     const number = (move.number + Number.parseInt(move.choice, 10)) / 3
-    checkGameOver(number, socket)
-
     socket.emit('update', { ...move, number })
 
-    if (isAgainstBot(players)) {
-      const botChoice = makeBotChoice(number)
-      const details = {
-        player: 'bot',
-        choice: botChoice,
-        number: (number + Number.parseInt(botChoice, 10)) / 3
-      }
+    if (isGameOver(number)) {
+      socket.emit('end')
+      return
+    }
 
-      socket.emit('update', details)
-      checkGameOver(details.number, socket)
+    if (isBotPlaying(players)) {
+      makeBotMove(number)
     }
   })
 }
