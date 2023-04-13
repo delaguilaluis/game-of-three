@@ -4,7 +4,7 @@ const { Server } = require('socket.io')
 const Client = require('socket.io-client')
 const listener = require('../listener')
 
-let io, serverSocket, clientSocket
+let io, clientSocket
 
 test('setup', (t) => {
   const server = createServer()
@@ -14,10 +14,7 @@ test('setup', (t) => {
     const port = server.address().port
     clientSocket = new Client(`http://localhost:${port}`)
 
-    io.on('connection', (socket) => {
-      listener(socket)
-      serverSocket = socket
-    })
+    io.on('connection', listener)
 
     clientSocket.on('connect', () => {
       t.pass('client should succesfully connect')
@@ -45,7 +42,7 @@ test('when P1 starts', (t) => {
 })
 
 test('when a player makes a +1 move', (t) => {
-  t.plan(1)
+  t.plan(3)
 
   clientSocket.emit('move', {
     player: 'Luis',
@@ -55,6 +52,8 @@ test('when a player makes a +1 move', (t) => {
 
   clientSocket.once('update', (details) => {
     t.equal(details.number, 19, 'a corresponding result should be signaled')
+    t.equal(details.player, 'Luis', "player's name is included in the signal")
+    t.equal(details.choice, '+1', "player's choice is included in the signal")
   })
 })
 

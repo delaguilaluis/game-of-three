@@ -33,7 +33,7 @@ module.exports = function listener (socket) {
         socket.emit('end')
       }
 
-      socket.emit('update', { number })
+      socket.emit('update', { ...move, number })
     }
   })
 }
