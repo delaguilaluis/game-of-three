@@ -54,7 +54,7 @@ test('when P2 makes a +1 move', (t) => {
   })
 
   clientSocket.once('update', (details) => {
-    t.equal(details.number, 57, 'an updated number should be signaled')
+    t.equal(details.number, 19, 'an updated number should be signaled')
   })
 })
 
@@ -68,7 +68,7 @@ test('when P2 makes a +1 move', (t) => {
   })
 
   clientSocket.once('update', (details) => {
-    t.equal(details.number, 57, 'an updated number should be signaled')
+    t.equal(details.number, 19, 'a corresponding result should be signaled')
   })
 })
 
@@ -78,11 +78,11 @@ test('when P2 makes a -1 move', (t) => {
   clientSocket.emit('move', {
     player: 'Luis',
     choice: '-1',
-    number: 56
+    number: 40
   })
 
   clientSocket.once('update', (details) => {
-    t.equal(details.number, 55, 'an updated number should be signaled')
+    t.equal(details.number, 13, 'a corresponding result should be signaled')
   })
 })
 
@@ -92,11 +92,11 @@ test('when P2 makes a +0 move', (t) => {
   clientSocket.emit('move', {
     player: 'Luis',
     choice: '+0',
-    number: 56
+    number: 30
   })
 
   clientSocket.once('update', (details) => {
-    t.equal(details.number, 56, 'the same number should be signaled')
+    t.equal(details.number, 10, 'a corresponding result should be signaled')
   })
 })
 

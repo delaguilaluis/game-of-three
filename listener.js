@@ -29,7 +29,7 @@ module.exports = function listener (socket) {
       }
 
       socket.emit('update', {
-        number: move.number + addedValue
+        number: (move.number + addedValue) / 3
       })
     }
   })
