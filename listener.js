@@ -15,6 +15,12 @@ function makeBotChoice (number) {
   return '-1'
 }
 
+function checkGameOver (number, socket) {
+  if (number === 1) {
+    socket.emit('end')
+  }
+}
+
 function listener (socket) {
   const players = []
 
@@ -36,22 +42,25 @@ function listener (socket) {
   })
 
   socket.on('move', (move) => {
-    if (move.choice) {
-      const number = (move.number + Number.parseInt(move.choice, 10)) / 3
-      if (number === 1) {
-        socket.emit('end')
+    if (!move.choice) {
+      return
+    }
+
+    const number = (move.number + Number.parseInt(move.choice, 10)) / 3
+    checkGameOver(number, socket)
+
+    socket.emit('update', { ...move, number })
+
+    if (isAgainstBot(players)) {
+      const botChoice = makeBotChoice(number)
+      const details = {
+        player: 'bot',
+        choice: botChoice,
+        number: (number + Number.parseInt(botChoice, 10)) / 3
       }
 
-      socket.emit('update', { ...move, number })
-
-      if (isAgainstBot(players)) {
-        const botChoice = makeBotChoice(number)
-        socket.emit('update', {
-          player: 'bot',
-          choice: botChoice,
-          number: number + Number.parseInt(botChoice, 10)
-        })
-      }
+      socket.emit('update', details)
+      checkGameOver(details.number, socket)
     }
   })
 }

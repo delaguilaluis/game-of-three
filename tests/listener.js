@@ -114,11 +114,32 @@ test('when playing against a bot', (t) => {
 
   clientSocket.on('update', (details) => {
     if (details.player === 'bot') {
-      // Human plays 57, so bot plays starting on 19
-      t.equal(details.number, 18, 'a corresponding result should be signaled')
+      // Human plays 57, so bot plays starting on 19 and chooses 18
+      t.equal(details.number, 6, 'a corresponding result should be signaled')
       t.equal(details.choice, '-1', "the bot's choice should be included in the signal")
+      clientSocket.removeAllListeners()
     }
   })
+})
+
+test('when bot makes a final move', (t) => {
+  clientSocket.emit('move', {
+    player: 'Luis',
+    choice: '-1',
+    number: 7
+  })
+
+  clientSocket.once('end', t.end, 'the end of the game should be signaled')
+})
+
+test('when making a final move', (t) => {
+  clientSocket.emit('move', {
+    player: 'Luis',
+    choice: '+1',
+    number: 2
+  })
+
+  clientSocket.once('end', t.end, 'the end of the game should be signaled')
 })
 
 test.onFinish(() => {
