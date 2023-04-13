@@ -2,37 +2,46 @@ const { createServer } = require('node:http')
 const test = require('tape')
 const { Server } = require('socket.io')
 const Client = require('socket.io-client')
-const listeners = require('../listeners')
+const listener = require('../listener')
 
 let io, serverSocket, clientSocket
 
 test('setup', (t) => {
-  t.plan(2)
-
   const server = createServer()
   io = new Server(server)
+
   server.listen(() => {
     const port = server.address().port
     clientSocket = new Client(`http://localhost:${port}`)
+
     io.on('connection', (socket) => {
-      listeners.connection(socket)
+      listener(socket)
       serverSocket = socket
     })
 
-    io.on('play', listeners.play)
-
     clientSocket.on('connect', () => {
-      t.pass('should succesfully connect')
-    })
+      t.pass('client should succesfully connect')
 
-    clientSocket.on('message', () => {
-      t.pass('should receive an instructions message')
+      clientSocket.on('message', () => {
+        t.pass('client should receive an instructions message')
+        t.end()
+      })
     })
   })
 })
 
-test('Should return the initial (random) number when P1 starts', (t) => {
-  clientSocket.emit('play', 'Luis')
+test('when P1 starts', (t) => {
+  t.plan(2)
+
+  clientSocket.emit('start', 'Luis')
+  clientSocket.on('move', (move) => {
+    t.equal(move.player, 'Luis', 'should specify the player making the move')
+    t.equal(
+      typeof move.number,
+      'number',
+      'client should receive a random number'
+    )
+  })
 })
 
 test.onFinish(() => {
