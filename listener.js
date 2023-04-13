@@ -34,7 +34,7 @@ function listener (socket) {
 
     socket.emit('update', details)
     if (isGameOver(details.number)) {
-      socket.emit('end')
+      socket.emit('end', players[BOT])
     }
   }
 
@@ -69,14 +69,11 @@ function listener (socket) {
     }
 
     const number = (move.number + Number.parseInt(move.choice, 10)) / 3
-    socket.emit('update', {
-      ...move,
-      number,
-      player: players[socket.handshake.auth.token]
-    })
+    const player = players[socket.handshake.auth.token]
+    socket.emit('update', { ...move, number, player })
 
     if (isGameOver(number)) {
-      socket.emit('end')
+      socket.emit('end', player)
       return
     }
 

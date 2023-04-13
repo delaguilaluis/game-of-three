@@ -19,7 +19,7 @@
     const socket = io(options);
     socket.on('message', console.log)
     socket.on('update', console.log)
-    socket.on('end', console.log)
+    socket.on('end', (winner) => console.log(`The winner is ${winner}!`))
   </script>
 </body>
 </html>

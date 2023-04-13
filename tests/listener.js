@@ -127,23 +127,31 @@ test('when playing against a bot', (t) => {
 })
 
 test('when bot makes a final move', (t) => {
+  t.plan(1)
+
   clientSocket.emit('move', {
     player: 'Luis',
     choice: '-1',
     number: 7
   })
 
-  clientSocket.once('end', t.end, 'the end of the game should be signaled')
+  clientSocket.once('end', (winner) => {
+    t.doesNotEqual(winner, 'Luis', 'end of the game (and winner) is announced')
+  })
 })
 
 test('when making a final move', (t) => {
+  t.plan(1)
+
   clientSocket.emit('move', {
     player: 'Luis',
     choice: '+1',
     number: 2
   })
 
-  clientSocket.once('end', t.end, 'the end of the game should be signaled')
+  clientSocket.once('end', (winner) => {
+    t.equal(winner, 'Luis', 'end of the game (and winner) is announced')
+  })
 })
 
 test.onFinish(() => {
