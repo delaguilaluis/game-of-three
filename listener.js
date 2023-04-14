@@ -88,7 +88,7 @@ function makeListener (io) {
         player: playerName
       })
 
-      const botNames = ['Einstein', 'Curie', 'Baldor', 'Hypathia', 'Euler']
+      const botNames = ['Arya', 'Snow', 'Sansa', 'Tyrion', 'Daenerys', 'Robb']
       const randomIndex = Math.round(Math.random() * 10) % 4
       players[BOT] = `${botNames[randomIndex]} (bot)`
       makeBotMove()
