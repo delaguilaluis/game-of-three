@@ -49,6 +49,7 @@ function listener (socket) {
 
   socket.on('start', (playerName, options = {}) => {
     if (!socket.handshake.auth.token) {
+      socket.emit('message', 'Game start failed. Did you send an auth token?')
       return
     }
 

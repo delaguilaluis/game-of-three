@@ -139,5 +139,5 @@ Fired when the game ends.
 
 ### Next steps
 
-* On-screen instructions on page load
-* Do not allow unauthenticated players to `start`
+* Allow to finish a human vs human game
+
