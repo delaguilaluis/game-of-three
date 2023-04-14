@@ -1,10 +1,12 @@
 const BOT = 'bot'
+let players = {}
+let number
 
 function isBotPlaying (players) {
   return Boolean(players[BOT])
 }
 
-function makeBotChoice (number) {
+function makeBotChoice () {
   if (number % 3 === 0) {
     return '+0'
   }
@@ -17,28 +19,33 @@ function makeBotChoice (number) {
   return '-1'
 }
 
-function isGameOver (number) {
+function isGameOver () {
   return number === 1
 }
 
-function listener (socket) {
-  const players = {}
+function finishGame (socket, player) {
+  socket.emit('end', player || players[BOT])
+  players = {}
+}
 
-  function makeBotMove (number) {
-    const botChoice = makeBotChoice(number)
-    const details = {
+function listener (socket) {
+  function makeBotMove () {
+    const botChoice = makeBotChoice()
+
+    number = (number + Number.parseInt(botChoice, 10)) / 3
+
+    socket.emit('update', {
       player: players[BOT],
       choice: botChoice,
-      number: (number + Number.parseInt(botChoice, 10)) / 3
-    }
+      number
+    })
 
-    socket.emit('update', details)
-    if (isGameOver(details.number)) {
-      socket.emit('end', players[BOT])
+    if (isGameOver()) {
+      finishGame(socket)
     }
   }
 
-  socket.emit('message', 'To start a game, emit a `start` event with your name')
+  socket.emit('message', "To start a game, emit a `start` event with your name, e.g. socket.emit('start', 'Luis')")
 
   socket.on('start', (playerName, options = {}) => {
     if (!socket.handshake.auth.token) {
@@ -48,7 +55,7 @@ function listener (socket) {
     // Honor random number override
     const argOverride = Number(process.argv[2])
     const envOverride = Number(process.env.STARTING_NUMBER)
-    const number = argOverride || envOverride || Math.round(Math.random() * 100)
+    number = argOverride || envOverride || Math.round(Math.random() * 100)
 
     players[socket.handshake.auth.token] = playerName
 
@@ -63,27 +70,27 @@ function listener (socket) {
       const botNames = ['Einstein', 'Curie', 'Baldor', 'Hypathia', 'Euler']
       const randomIndex = Math.round(Math.random() * 10) % 4
       players[BOT] = `${botNames[randomIndex]} (bot)`
-      makeBotMove(number)
+      makeBotMove()
     }
   })
 
-  socket.on('move', (move) => {
-    if (!move.choice) {
+  socket.on('move', (choice) => {
+    if (!choice) {
       return
     }
 
-    const number = (move.number + Number.parseInt(move.choice, 10)) / 3
+    number = (number + Number.parseInt(choice, 10)) / 3
     const player = players[socket.handshake.auth.token]
-    socket.emit('update', { ...move, number, player })
+    socket.emit('update', { player, choice, number })
 
     // End game if this was the winning move
-    if (isGameOver(number)) {
-      socket.emit('end', player)
+    if (isGameOver()) {
+      finishGame(socket, player)
       return
     }
 
     if (isBotPlaying(players)) {
-      makeBotMove(number)
+      makeBotMove()
     }
   })
 }

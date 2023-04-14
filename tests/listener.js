@@ -32,11 +32,10 @@ test('setup', (t) => {
 })
 
 test('when P1 starts a multiplayer game', (t) => {
-  // Pass test if no bot `update` events get emitted after 100ms
-  setTimeout(t.end, 100)
+  t.plan(1)
 
   clientSocket.emit('start', 'Luis', { multiplayer: true })
-
+  setTimeout(t.pass, 100, 'no bot move should happen')
   clientSocket.once('update', (details) => {
     if (details.player !== 'Luis') {
       t.fail('no bot should be playing')
@@ -46,14 +45,15 @@ test('when P1 starts a multiplayer game', (t) => {
 
 test('when P1 starts a game against a bot', (t) => {
   t.plan(2)
+  process.env.STARTING_NUMBER = 777
 
   clientSocket.emit('start', 'Luis')
   clientSocket.on('update', (details) => {
     if (details.player === 'Luis') {
       t.equal(
-        typeof details.number,
-        'number',
-        'client should receive a starting number'
+        details.number,
+        777,
+        'the initial move should be signaled'
       )
     } else {
       t.pass('client should see a bot move')
@@ -62,112 +62,65 @@ test('when P1 starts a game against a bot', (t) => {
   })
 })
 
-test('when a player makes a +1 move', (t) => {
+test('when a player makes a -1 move', (t) => {
   t.plan(3)
 
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '+1',
-    number: 56
-  })
+  // Bot play results in 259, so we should move -1
+  clientSocket.emit('move', '-1')
 
   clientSocket.once('update', (details) => {
-    t.equal(details.number, 19, 'a corresponding result should be signaled')
+    t.equal(details.number, 86, 'a corresponding result should be signaled')
     t.equal(details.player, 'Luis', "player's name is included in the signal")
-    t.equal(details.choice, '+1', "player's choice is included in the signal")
+    t.equal(details.choice, '-1', "player's choice is included in the signal")
   })
 })
 
-test('when a player makes a -1 move', (t) => {
+test('when a player makes a +1 move', (t) => {
   t.plan(1)
 
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '-1',
-    number: 40
-  })
-
-  clientSocket.once('update', (details) => {
-    t.equal(details.number, 13, 'a corresponding result should be signaled')
-  })
-})
-
-test('when a player makes a +0 move', (t) => {
-  t.plan(1)
-
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '+0',
-    number: 30
-  })
+  // Bot play results in 29, so we should move +1
+  clientSocket.emit('move', '+1')
 
   clientSocket.once('update', (details) => {
     t.equal(details.number, 10, 'a corresponding result should be signaled')
   })
 })
 
-test('when the number reaches 1', (t) => {
-  t.plan(2)
+test('when a player makes a +0 move', (t) => {
+  t.plan(1)
 
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '+1',
-    number: 2
-  })
+  // Bot play results in 3, so we should move +0
+  clientSocket.emit('move', '+0')
 
   clientSocket.once('update', (details) => {
     t.equal(details.number, 1, 'a corresponding result should be signaled')
   })
-
-  clientSocket.once('end', () => {
-    t.pass('an `end` event is emitted')
-  })
 })
 
-test('when playing against a bot', (t) => {
-  t.plan(2)
+test('when a human makes a final move', (t) => {
+  t.plan(1)
+  process.env.STARTING_NUMBER = 11
 
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '+1',
-    number: 56
-  })
-
+  clientSocket.emit('start', 'Luis')
   clientSocket.on('update', (details) => {
+    // After bot move, the resulting number should be 4
     if (details.player !== 'Luis') {
-      // Human plays 57, so bot plays starting on 19 and chooses 18
-      t.equal(details.number, 6, 'a corresponding result should be signaled')
-      t.equal(details.choice, '-1', "the bot's choice should be included in the signal")
-      clientSocket.removeAllListeners()
+      clientSocket.removeAllListeners('update')
+      clientSocket.emit('move', '-1')
+      clientSocket.once('end', (winner) => {
+        t.equal(winner, 'Luis', 'they should be announced as winner')
+      })
     }
   })
 })
 
-test('when bot makes a final move', (t) => {
+test('when a bot makes a final move', (t) => {
   t.plan(1)
+  process.env.STARTING_NUMBER = 2
 
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '-1',
-    number: 7
-  })
-
+  clientSocket.emit('start', 'Luis')
   clientSocket.once('end', (winner) => {
-    t.doesNotEqual(winner, 'Luis', 'end of the game (and winner) is announced')
-  })
-})
-
-test('when making a final move', (t) => {
-  t.plan(1)
-
-  clientSocket.emit('move', {
-    player: 'Luis',
-    choice: '+1',
-    number: 2
-  })
-
-  clientSocket.once('end', (winner) => {
-    t.equal(winner, 'Luis', 'end of the game (and winner) is announced')
+    t.notEqual(winner, 'Luis', 'it should be announced as winner')
   })
 })
 

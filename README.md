@@ -139,4 +139,5 @@ Fired when the game ends.
 
 ### Next steps
 
-* Simplify move API?
+* On-screen instructions on page load
+* Do not allow unauthenticated players to `start`
