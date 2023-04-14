@@ -95,7 +95,11 @@ function makeListener (io) {
     })
 
     socket.on('move', (choice) => {
-      if (!choice) {
+      const sum = number + Number.parseInt(choice, 10)
+      if (!choice || !(sum % 3 === 0)) {
+        const error = new Error('Not divisible by 3. Please try again.')
+        error.name = 'InvalidInput'
+        socket.emit('error', error)
         return
       }
 

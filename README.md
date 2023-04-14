@@ -79,7 +79,7 @@ socket.emit('move', '-1')
   * `number`: number with the resulting value after applying the choice to the
     previous number and dividing it by 3.
 
-Fired upon players moves.
+Broadcasted upon players moves.
 
 ```javascript
 socket.on('update', (details) => {
@@ -89,6 +89,20 @@ socket.on('update', (details) => {
   //   "choice": "-1",
   //   "number": 18
   // }
+})
+```
+
+#### Event: `error`
+
+* `error`: an Error object
+  * `name`: string with the name of the error to help identify the scenario.
+
+Could be fired upon an invalid player move.
+
+```javascript
+socket.on('error', (error) => {
+  console.log(error.name)
+  // InvalidInput
 })
 ```
 
@@ -116,7 +130,7 @@ socket.on('end', (winner) => {
 })
 ```
 
-Fired when the game ends.
+Broadcasted when the game ends.
 
 ## Thoughts
 

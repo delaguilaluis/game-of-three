@@ -67,6 +67,18 @@ test('when P1 starts a game against a bot', (t) => {
   })
 })
 
+test('when a player makes an invalid move', (t) => {
+  t.plan(2)
+
+  // Bot play results in 259
+  clientSocket.emit('move', '+1')
+
+  clientSocket.once('error', (err) => {
+    t.ok(err.constructor, Error, 'an erorr is signaled')
+    t.equal(err.name, 'InvalidInput', 'the erorr name is correct')
+  })
+})
+
 test('when a player makes a -1 move', (t) => {
   t.plan(3)
 
