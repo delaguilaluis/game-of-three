@@ -5,26 +5,30 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game of Three</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <h1>Game of Three</h1>
-  <p>
-    Please open this browser developer tools under its "console" tab and follow
-    the instructions.
-  </p>
+  <div class="w-40">
+    <fieldset>
+      <legend>Game Mode</legend>
+      <input type="radio" id="single" name="mode" value="single" checked>
+      <label for="single">Single</label>
+      <input type="radio" id="multi" name="mode" value="multi">
+      <label for="multi">Multiplayer</label>
+    </fieldset>
+  </div>
+  <div class="vertical-margin">
+    <input id="player" placeholder="Player name"></input>
+    <button id="start">Start</button>
+  </div>
+  <div class="vertical-margin">
+    <button id="move-decrease">-1</button>
+    <button id="move-stay">+0</button>
+    <button id="move-increase">+1</button>
+  </div>
+  <textarea id="timeline" rows="20" cols="100" readonly></textarea>
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const options = {
-      auth: {
-        token: Date.now().toString(36)
-      }
-    }
-
-    const socket = io(options);
-    socket.on('message', console.log)
-    socket.on('update', console.log)
-    socket.on('error', console.log)
-    socket.on('end', (winner) => console.log(`The winner is ${winner}!`))
-  </script>
+  <script src="./index.js"></script>
 </body>
 </html>

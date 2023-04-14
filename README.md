@@ -96,6 +96,7 @@ socket.on('update', (details) => {
 
 * `error`: an Error object
   * `name`: string with the name of the error to help identify the scenario.
+  * `message`: string with a human-readable description of the error.
 
 Could be fired upon an invalid player move.
 

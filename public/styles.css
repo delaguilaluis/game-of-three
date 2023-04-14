@@ -1,0 +1,11 @@
+#timeline {
+  display: block;
+}
+
+.vertical-margin {
+  margin: 8px 0;
+}
+
+.w-40 {
+  width: 40%;
+}
