@@ -18,7 +18,7 @@ test('setup', (t) => {
       }
     })
 
-    io.on('connection', listener)
+    io.on('connection', listener(io))
 
     clientSocket.on('connect', () => {
       t.pass('client should succesfully connect')
@@ -35,12 +35,17 @@ test('when P1 starts a multiplayer game', (t) => {
   t.plan(1)
 
   clientSocket.emit('start', 'Luis', { multiplayer: true })
-  setTimeout(t.pass, 100, 'no bot move should happen')
-  clientSocket.once('update', (details) => {
+  clientSocket.on('update', (details) => {
     if (details.player !== 'Luis') {
       t.fail('no bot should be playing')
     }
   })
+
+  setTimeout(() => {
+    clientSocket.removeAllListeners('update')
+    clientSocket.emit('leave')
+    t.pass('no bot move should happen')
+  }, 100)
 })
 
 test('when P1 starts a game against a bot', (t) => {

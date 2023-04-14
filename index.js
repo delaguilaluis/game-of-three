@@ -9,7 +9,7 @@ const io = new Server(server)
 
 app.get('/', express.static('./public'))
 
-io.on('connection', listener)
+io.on('connection', listener(io))
 
 const port = 8080
 server.listen(port, () => {
