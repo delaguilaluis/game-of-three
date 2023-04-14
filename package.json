@@ -4,6 +4,7 @@
   "description": "A code challenge implementation",
   "main": "index.js",
   "scripts": {
+    "start": "node .",
     "dev": "nodemon",
     "lint": "standard",
     "tape": "tape 'tests/**/*.js'",

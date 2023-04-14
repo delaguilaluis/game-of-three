@@ -12,7 +12,11 @@ test('setup', (t) => {
 
   server.listen(() => {
     const port = server.address().port
-    clientSocket = new Client(`http://localhost:${port}`)
+    clientSocket = new Client(`http://localhost:${port}`, {
+      auth: {
+        token: 'test'
+      }
+    })
 
     io.on('connection', listener)
 
@@ -24,6 +28,19 @@ test('setup', (t) => {
         t.end()
       })
     })
+  })
+})
+
+test('when P1 starts a multiplayer game', (t) => {
+  // Pass test if no bot `update` events get emitted after 100ms
+  setTimeout(t.end, 100)
+
+  clientSocket.emit('start', 'Luis', { multiplayer: true })
+
+  clientSocket.once('update', (details) => {
+    if (details.player !== 'Luis') {
+      t.fail('no bot should be playing')
+    }
   })
 })
 

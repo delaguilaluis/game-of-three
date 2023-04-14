@@ -40,21 +40,25 @@ function listener (socket) {
 
   socket.emit('message', 'To start a game, emit a `start` event with your name')
 
-  socket.on('start', (player) => {
-    // Honor random number override sent as parameter
-    const envOverride = Number(process.env.STARTING_NUMBER)
-    const argOverride = Number(process.argv[2])
-    const number = envOverride || argOverride || Math.round(Math.random() * 100)
+  socket.on('start', (playerName, options = {}) => {
+    if (!socket.handshake.auth.token) {
+      return
+    }
 
-    players[socket.handshake.auth.token] = player
+    // Honor random number override
+    const argOverride = Number(process.argv[2])
+    const envOverride = Number(process.env.STARTING_NUMBER)
+    const number = argOverride || envOverride || Math.round(Math.random() * 100)
+
+    players[socket.handshake.auth.token] = playerName
 
     // First move; player does not choose
     socket.emit('update', {
-      player,
-      number
+      number,
+      player: playerName
     })
 
-    if (!isBotPlaying(players)) {
+    if (!options.multiplayer && !isBotPlaying(players)) {
       // Add a bot and perform a move
       const botNames = ['Einstein', 'Curie', 'Baldor', 'Hypathia', 'Euler']
       const randomIndex = Math.round(Math.random() * 10) % 4
@@ -72,6 +76,7 @@ function listener (socket) {
     const player = players[socket.handshake.auth.token]
     socket.emit('update', { ...move, number, player })
 
+    // End game if this was the winning move
     if (isGameOver(number)) {
       socket.emit('end', player)
       return
