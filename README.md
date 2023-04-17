@@ -155,4 +155,3 @@ Broadcasted when the game ends.
 ### Next steps
 
 * Allow to finish a human vs human game
-
