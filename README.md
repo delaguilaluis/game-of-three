@@ -155,6 +155,6 @@ Broadcasted when the game ends.
 
 ### Next steps
 
-* Store (and validate) turns state?
+* Allow the game to keep going without user input
 * Host it
 * Add diagram

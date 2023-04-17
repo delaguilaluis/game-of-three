@@ -2,6 +2,7 @@ function makeListener (io) {
   const BOT = 'bot'
   let players = {}
   let number
+  let nextPlayerKey
 
   function isBotPlaying () {
     return Boolean(players[BOT])
@@ -32,10 +33,16 @@ function makeListener (io) {
 
     io.emit('end', winner)
     players = {}
+    nextPlayerKey = null
   }
 
   function listener (socket) {
     const token = socket.handshake.auth.token
+
+    function setNextTurn (token) {
+      io.emit('message', `Waiting for a move by ${players[token]}`)
+      nextPlayerKey = token
+    }
 
     function makeBotMove () {
       const botChoice = makeBotChoice()
@@ -51,6 +58,8 @@ function makeListener (io) {
 
       if (isGameOver()) {
         finishGame(bot)
+      } else {
+        setNextTurn(token)
       }
     }
 
@@ -86,6 +95,8 @@ function makeListener (io) {
         return
       }
 
+      io.emit('message', 'Game started!')
+
       // Honor random number override
       const argOverride = Number(process.argv[2])
       const envOverride = Number(process.env.STARTING_NUMBER)
@@ -102,6 +113,8 @@ function makeListener (io) {
           player: players[p1Key]
         })
 
+        setNextTurn(token)
+
         return
       }
 
@@ -114,12 +127,14 @@ function makeListener (io) {
       const botNames = ['Arya', 'Snow', 'Sansa', 'Tyrion', 'Daenerys', 'Robb']
       const randomIndex = Math.round(Math.random() * 10) % 4
       players[BOT] = `${botNames[randomIndex]} (bot)`
+
+      setNextTurn(BOT)
       makeBotMove()
     })
 
     socket.on('move', (choice) => {
-      if (!players[token]) {
-        // Player is not in game
+      if (nextPlayerKey !== token) {
+        // Not the player's turn
         return
       }
 
@@ -144,7 +159,12 @@ function makeListener (io) {
 
       if (isBotPlaying()) {
         makeBotMove()
+        return
       }
+
+      // Find the player 2
+      const p2Key = Object.keys(players).find((key) => key !== token)
+      setNextTurn(p2Key)
     })
 
     socket.on('leave', handleLeave)
