@@ -88,6 +88,11 @@ function makeListener (io) {
         return
       }
 
+      if (Object.values(players).includes(playerName)) {
+        socket.emit('message', `There's already a player named ${playerName}.`)
+        return
+      }
+
       players[token] = playerName
 
       if (options.multiplayer && Object.keys(players).length < 2) {

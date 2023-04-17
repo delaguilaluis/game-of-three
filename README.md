@@ -155,6 +155,5 @@ Broadcasted when the game ends.
 
 ### Next steps
 
-* Validate repeated player names
 * Host it
 * Add diagram
