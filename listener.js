@@ -3,7 +3,7 @@ function makeListener (io) {
   let players = {}
   let number
 
-  function isBotPlaying (players) {
+  function isBotPlaying () {
     return Boolean(players[BOT])
   }
 
@@ -24,8 +24,13 @@ function makeListener (io) {
     return number === 1
   }
 
-  function finishGame (player) {
-    io.emit('end', player || players[BOT])
+  function finishGame (winner) {
+    // No game was ongoing
+    if (!Object.keys(players).length) {
+      return
+    }
+
+    io.emit('end', winner)
     players = {}
   }
 
@@ -37,16 +42,28 @@ function makeListener (io) {
 
       number = (number + Number.parseInt(botChoice, 10)) / 3
 
-      const player = players[BOT]
+      const bot = players[BOT]
       io.emit('update', {
         choice: botChoice,
-        player,
+        player: bot,
         number
       })
 
       if (isGameOver()) {
-        finishGame(player)
+        finishGame(bot)
       }
+    }
+
+    function handleLeave () {
+      if (players[token]) {
+        io.emit('message', `${players[token]} left the game.`)
+      }
+
+      if (isBotPlaying()) {
+        io.emit('message', `${players[BOT]} left the game.`)
+      }
+
+      finishGame()
     }
 
     socket.emit('message', "To start a game, emit a `start` event with your name, e.g. socket.emit('start', 'Luis')")
@@ -57,23 +74,29 @@ function makeListener (io) {
         return
       }
 
-      players[token] = playerName
-      const playerKeys = Object.keys(players)
+      if (Object.keys(players).length > 1) {
+        socket.emit('message', 'Another game is already in progress. Please wait for it to finish.')
+        return
+      }
 
-      if (options.multiplayer && playerKeys.length < 2) {
-        socket.emit('message', 'Waiting for another player to join...')
+      players[token] = playerName
+
+      if (options.multiplayer && Object.keys(players).length < 2) {
+        io.emit('message', `${playerName} is ready to play. Waiting for another player...`)
         return
       }
 
       // Honor random number override
       const argOverride = Number(process.argv[2])
       const envOverride = Number(process.env.STARTING_NUMBER)
-      number = argOverride || envOverride || Math.round(Math.random() * 100)
+
+      // Add 2 to random generated number to avoid starting with 0 or 1
+      number = argOverride || envOverride || Math.round(Math.random() * 100) + 2
 
       // Starts the game when the second player joins
       if (options.multiplayer) {
         // Find the player 1
-        const p1Key = playerKeys.find((key) => key !== token)
+        const p1Key = Object.keys(players).find((key) => key !== token)
         io.emit('update', {
           number,
           player: players[p1Key]
@@ -95,6 +118,11 @@ function makeListener (io) {
     })
 
     socket.on('move', (choice) => {
+      if (!players[token]) {
+        // Player is not in game
+        return
+      }
+
       const sum = number + Number.parseInt(choice, 10)
       if (!choice || !(sum % 3 === 0)) {
         const error = new Error()
@@ -114,18 +142,14 @@ function makeListener (io) {
         return
       }
 
-      if (isBotPlaying(players)) {
+      if (isBotPlaying()) {
         makeBotMove()
       }
     })
 
-    socket.on('leave', () => {
-      delete players[token]
-    })
+    socket.on('leave', handleLeave)
 
-    socket.on('disconnect', () => {
-      delete players[token]
-    })
+    socket.on('disconnect', handleLeave)
   }
 
   return listener

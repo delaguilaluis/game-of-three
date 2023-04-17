@@ -122,7 +122,8 @@ Fired when the server makes an announcement.
 
 #### Event: `end`
 
-* `winner`: string with the name of the player who won
+* `winner`: string with the name of the player who won. Winner could be missing
+  in scenarios where players leave before finishing the game.
 
 ```javascript
 socket.on('end', (winner) => {
@@ -154,4 +155,6 @@ Broadcasted when the game ends.
 
 ### Next steps
 
-* Allow to finish a human vs human game
+* Store (and validate) turns state?
+* Host it
+* Add diagram

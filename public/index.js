@@ -42,6 +42,11 @@ document.getElementById('move-increase')
     socket.emit('move', '+1')
   })
 
+document.getElementById('clear')
+  .addEventListener('click', () => {
+    timeline.value = ''
+  })
+
 const socket = io({
   auth: {
     token: Date.now().toString(36)
@@ -70,4 +75,10 @@ socket.on('error', (error) => {
   addToTimeline(error.message)
 })
 
-socket.on('end', (winner) => addToTimeline(`${winner} wins!`))
+socket.on('end', (winner) => {
+  if (!winner) {
+    addToTimeline('The game was cancelled.')
+  } else {
+    addToTimeline(`${winner} wins!`)
+  }
+})

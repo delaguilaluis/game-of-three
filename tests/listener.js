@@ -31,7 +31,7 @@ test('setup', (t) => {
   })
 })
 
-test('when P1 starts a multiplayer game', (t) => {
+test('when a multiplayer game starts', (t) => {
   t.plan(1)
 
   clientSocket.emit('start', 'Luis', { multiplayer: true })
@@ -42,13 +42,14 @@ test('when P1 starts a multiplayer game', (t) => {
   })
 
   setTimeout(() => {
+    t.pass('no bot move should happen')
+
     clientSocket.removeAllListeners('update')
     clientSocket.emit('leave')
-    t.pass('no bot move should happen')
   }, 100)
 })
 
-test('when P1 starts a game against a bot', (t) => {
+test('when a single player game starts', (t) => {
   t.plan(2)
   process.env.STARTING_NUMBER = 777
 
@@ -62,20 +63,21 @@ test('when P1 starts a game against a bot', (t) => {
       )
     } else {
       t.pass('client should see a bot move')
-      clientSocket.removeAllListeners()
+
+      clientSocket.removeAllListeners('update')
+      delete process.env.STARTING_NUMBER
     }
   })
 })
 
 test('when a player makes an invalid move', (t) => {
-  t.plan(2)
+  t.plan(1)
 
   // Bot play results in 259
   clientSocket.emit('move', '+1')
 
   clientSocket.once('error', (err) => {
-    t.ok(err.constructor, Error, 'an erorr is signaled')
-    t.equal(err.name, 'InvalidInput', 'the erorr name is correct')
+    t.equal(err.name, 'InvalidInput', 'an erorr is signaled')
   })
 })
 
@@ -122,11 +124,13 @@ test('when a human makes a final move', (t) => {
   clientSocket.on('update', (details) => {
     // After bot move, the resulting number should be 4
     if (details.player !== 'Luis') {
-      clientSocket.removeAllListeners('update')
       clientSocket.emit('move', '-1')
       clientSocket.once('end', (winner) => {
         t.equal(winner, 'Luis', 'they should be announced as winner')
       })
+
+      clientSocket.removeAllListeners('update')
+      delete process.env.STARTING_NUMBER
     }
   })
 })
@@ -138,6 +142,29 @@ test('when a bot makes a final move', (t) => {
   clientSocket.emit('start', 'Luis')
   clientSocket.once('end', (winner) => {
     t.notEqual(winner, 'Luis', 'it should be announced as winner')
+
+    delete process.env.STARTING_NUMBER
+  })
+})
+
+test('when a single player game starts and the player leaves', (t) => {
+  t.plan(4)
+
+  clientSocket.emit('start', 'Luis')
+  clientSocket.once('update', ({ number }) => {
+    t.equal(typeof number, 'number', 'an initial random number should be sent')
+
+    clientSocket.emit('leave')
+  })
+
+  clientSocket.on('message', (msg) => {
+    t.ok(msg.includes('left'), 'Player (and bot) leaving the game is announced')
+  })
+
+  clientSocket.once('end', (winner) => {
+    t.notOk(winner, 'the game end is signaled without a winner')
+
+    clientSocket.removeAllListeners('message')
   })
 })
 
