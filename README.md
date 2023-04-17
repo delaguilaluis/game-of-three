@@ -155,6 +155,6 @@ Broadcasted when the game ends.
 
 ### Next steps
 
-* Allow the game to keep going without user input
+* Validate repeated player names
 * Host it
 * Add diagram

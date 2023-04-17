@@ -2,6 +2,9 @@
 'use strict'
 
 const timeline = document.getElementById('timeline')
+let localPlayer
+let currentNumber
+let autoMove
 
 function addToTimeline (str) {
   timeline.value += '> '
@@ -10,9 +13,34 @@ function addToTimeline (str) {
   timeline.scrollTop = timeline.scrollHeight
 }
 
-window.onload = () => {
+function clearTimeline () {
   timeline.value = ''
 }
+
+function move (choice) {
+  socket.emit('move', choice)
+  clearTimeout(autoMove)
+}
+
+// Computes a valid move and performs it after 10 seconds
+function scheduleMove (number) {
+  clearTimeout(autoMove)
+  autoMove = setTimeout(() => {
+    if (number % 3 === 0) {
+      move('+0')
+      return
+    }
+
+    if ((number + 1) % 3 === 0) {
+      move('+1')
+      return
+    }
+
+    move('-1')
+  }, 10000)
+}
+
+window.onload = clearTimeline
 
 document.getElementById('start')
   .addEventListener('click', () => {
@@ -27,27 +55,21 @@ document.getElementById('start')
     socket.emit('start', playerInput.value, {
       multiplayer: multiplayerRadio.checked
     })
+
+    localPlayer = playerInput.value
   })
 
 document.getElementById('move-decrease')
-  .addEventListener('click', () => {
-    socket.emit('move', '-1')
-  })
+  .addEventListener('click', () => move('-1'))
 
 document.getElementById('move-stay')
-  .addEventListener('click', () => {
-    socket.emit('move', '+0')
-  })
+  .addEventListener('click', () => move('+0'))
 
 document.getElementById('move-increase')
-  .addEventListener('click', () => {
-    socket.emit('move', '+1')
-  })
+  .addEventListener('click', () => move('+1'))
 
 document.getElementById('clear')
-  .addEventListener('click', () => {
-    timeline.value = ''
-  })
+  .addEventListener('click', clearTimeline)
 
 const socket = io({
   auth: {
@@ -65,16 +87,27 @@ socket.on('message', (message) => {
 
 socket.on('update', (details) => {
   const { player, number, choice } = details
+  currentNumber = number
+
   if (!details.choice) {
     addToTimeline(`${player} sends the number ${number}.`)
-    return
+  } else {
+    addToTimeline(`${player} added ${choice} and sends the number ${number}.`)
   }
 
-  addToTimeline(`${player} added ${choice} and sends the number ${number}.`)
+  // On oponent moves, start a timer for auto-moves
+  if (player !== localPlayer) {
+    scheduleMove(number)
+  }
 })
 
 socket.on('error', (error) => {
   addToTimeline(error.message)
+
+  // Do not halt after invalid user inputs
+  if (error.name === 'InvalidInput') {
+    scheduleMove(currentNumber)
+  }
 })
 
 socket.on('end', (winner) => {
