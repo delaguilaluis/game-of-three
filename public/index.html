@@ -8,28 +8,41 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <h1>Game of Three</h1>
-  <div class="w-40">
-    <fieldset>
-      <legend>Game Mode</legend>
-      <input type="radio" id="single" name="mode" value="single" checked>
-      <label for="single">Single</label>
-      <input type="radio" id="multi" name="mode" value="multi">
-      <label for="multi">Multiplayer</label>
-    </fieldset>
+  <div id="game">
+    <h1>Game of Three</h1>
+    <details class="options-panel-item vertical-margin">
+      <summary class="big-font">Instructions</summary>
+      <ul>
+        <li>Players should add <code>-1</code>, <code>0</code> or <code>1</code> to the current number to get one that is divisible by 3.</li>
+        <li>If no choice is done in 10 seconds, one will be done automatically.</li>
+        <li>The resulting number is divided by 3 and sent back to the oponent.</li>
+        <li>The player to reach 1 wins!</li>
+      </ul>
+    </details>
+    <div class="options-panel-item">
+      <fieldset>
+        <legend>Game Mode</legend>
+        <input type="radio" id="single" name="mode" value="single" checked>
+        <label class="big-font" for="single">Single</label>
+        <input type="radio" id="multi" name="mode" value="multi">
+        <label class="big-font" for="multi">Multiplayer</label>
+      </fieldset>
+    </div>
+    <div class="vertical-margin">
+      <p class="no-margin">Player name</p>
+      <input id="player"></input>
+      <button id="start" class="big-font">Start</button>
+    </div>
+    <div class="vertical-margin">
+      <label>Moves:</label>
+      <button id="move-decrease" class="move-button big-font">-1</button>
+      <button id="move-stay" class="move-button big-font">+0</button>
+      <button id="move-increase" class="move-button big-font">+1</button>
+    </div>
+    <textarea id="timeline" rows="16" placeholder="Timeline" readonly>
+    </textarea>
+    <button id="clear" class="big-font vertical-margin">Clear</button>
   </div>
-  <div class="vertical-margin">
-    <input id="player" placeholder="Player name"></input>
-    <button id="start">Start</button>
-  </div>
-  <div class="vertical-margin">
-    <button id="move-decrease">-1</button>
-    <button id="move-stay">+0</button>
-    <button id="move-increase">+1</button>
-  </div>
-  <textarea id="timeline" rows="20" cols="100" placeholder="Timeline" readonly>
-  </textarea>
-  <button id="clear" class="vertical-margin">Clear</button>
   <script src="/socket.io/socket.io.js"></script>
   <script src="./index.js"></script>
 </body>

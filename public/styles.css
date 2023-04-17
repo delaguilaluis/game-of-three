@@ -1,11 +1,41 @@
+body {
+  background-color: #f4f4f4;
+}
+
+#game {
+  width: 344px;
+  padding: 2px;
+  margin: auto;
+}
+
 #timeline {
   display: block;
+  font-size: 1.25em;
+  width: 100%;
+}
+
+#player {
+  width: 75%;
+  font-size: 1.5em;
+}
+
+.no-margin {
+  margin: 0
 }
 
 .vertical-margin {
   margin: 8px 0;
 }
 
-.w-40 {
-  width: 40%;
+.move-button {
+  margin: 12px 20px;
+}
+
+.options-panel-item {
+  /* width: 352px; */
+  width: 100%
+}
+
+.big-font {
+  font-size: 1.5em;
 }

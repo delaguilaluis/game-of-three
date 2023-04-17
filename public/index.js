@@ -4,8 +4,10 @@
 const timeline = document.getElementById('timeline')
 
 function addToTimeline (str) {
+  timeline.value += '> '
   timeline.value += typeof str === 'string' ? str : JSON.stringify(str)
   timeline.value += '\n'
+  timeline.scrollTop = timeline.scrollHeight
 }
 
 window.onload = () => {

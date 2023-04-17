@@ -40,7 +40,7 @@ function makeListener (io) {
     const token = socket.handshake.auth.token
 
     function setNextTurn (token) {
-      io.emit('message', `Waiting for a move by ${players[token]}`)
+      io.emit('message', `Waiting for a move by ${players[token]}...`)
       nextPlayerKey = token
     }
 
