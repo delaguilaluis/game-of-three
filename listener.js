@@ -87,7 +87,12 @@ function makeListener (io) {
       }
 
       if (Object.keys(players).length > 1) {
-        socket.emit('message', 'Another game is already in progress. Please wait for it to finish.')
+        socket.emit('message', 'Another game is in progress. Please wait for it to finish.')
+        return
+      }
+
+      if (Object.keys(players).length === 1 && !options.multiplayer) {
+        socket.emit('message', `${Object.values(players)[0]} is waiting in queue for a multiplayer game.`)
         return
       }
 
@@ -105,7 +110,7 @@ function makeListener (io) {
 
       io.emit('message', 'Game started!')
 
-      // Honor random number override
+      // Get starting number; honor random number override
       const argOverride = Number(process.argv[2])
       const envOverride = Number(process.env.STARTING_NUMBER)
 
