@@ -77,20 +77,21 @@ test('when a player makes an invalid move', (t) => {
   clientSocket.emit('move', '+1')
 
   clientSocket.once('error', (err) => {
-    t.equal(err.name, 'InvalidInput', 'an erorr is signaled')
+    t.equal(err.name, 'InvalidInput', 'an erorr should be signaled')
   })
 })
 
 test('when a player makes a -1 move', (t) => {
-  t.plan(3)
+  t.plan(4)
 
   // Bot play results in 259, so we should move -1
   clientSocket.emit('move', '-1')
 
-  clientSocket.once('update', (details) => {
-    t.equal(details.number, 86, 'a corresponding result should be signaled')
-    t.equal(details.player, 'Luis', "player's name is included in the signal")
-    t.equal(details.choice, '-1', "player's choice is included in the signal")
+  clientSocket.once('update', (dtls) => {
+    t.equal(typeof dtls, 'object', 'a move should be signaled with its details')
+    t.equal(dtls.number, 86, 'a corresponding result should be in the details')
+    t.equal(dtls.player, 'Luis', "player's name should be in the details")
+    t.equal(dtls.choice, '-1', "player's choice should be in the details")
   })
 })
 
@@ -148,7 +149,7 @@ test('when a bot makes a final move', (t) => {
 })
 
 test('when a single player game starts and the player leaves', (t) => {
-  t.plan(4)
+  t.plan(7)
 
   clientSocket.emit('start', 'Luis')
   clientSocket.once('update', ({ number }) => {
@@ -158,11 +159,24 @@ test('when a single player game starts and the player leaves', (t) => {
   })
 
   clientSocket.on('message', (msg) => {
-    t.ok(msg.includes('left'), 'Player (and bot) leaving the game is announced')
+    if (msg.includes('started')) {
+      t.pass('the game start should be announced')
+      return
+    }
+
+    if (msg.includes('Waiting for a move')) {
+      t.pass('turn information should be announced')
+      return
+    }
+
+    t.ok(
+      msg.includes('left'),
+      'player (and bot) leaving the game should be announced'
+    )
   })
 
   clientSocket.once('end', (winner) => {
-    t.notOk(winner, 'the game end is signaled without a winner')
+    t.notOk(winner, 'the game end should be signaled without a winner')
 
     clientSocket.removeAllListeners('message')
   })
