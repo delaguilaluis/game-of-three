@@ -64,9 +64,12 @@ function makeListener (io) {
     }
 
     function handleLeave () {
-      if (players[token]) {
-        io.emit('message', `${players[token]} left the game.`)
+      // The player is not in a game
+      if (!players[token]) {
+        return
       }
+
+      io.emit('message', `${players[token]} left the game.`)
 
       if (isBotPlaying()) {
         io.emit('message', `${players[BOT]} left the game.`)

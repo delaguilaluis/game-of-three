@@ -15,7 +15,7 @@ body {
 }
 
 #player {
-  width: 75%;
+  width: 45%;
   font-size: 1.5em;
 }
 
@@ -25,6 +25,10 @@ body {
 
 .vertical-margin {
   margin: 8px 0;
+}
+
+.margin-right {
+  margin-right: 8px;
 }
 
 .move-button {

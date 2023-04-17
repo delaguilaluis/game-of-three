@@ -59,6 +59,9 @@ document.getElementById('start')
     localPlayer = playerInput.value
   })
 
+document.getElementById('leave')
+  .addEventListener('click', () => socket.emit('leave'))
+
 document.getElementById('move-decrease')
   .addEventListener('click', () => move('-1'))
 
@@ -104,7 +107,7 @@ socket.on('update', (details) => {
 socket.on('error', (error) => {
   addToTimeline(error.message)
 
-  // Do not halt after invalid user inputs
+  // Do not halt after invalid player inputs
   if (error.name === 'InvalidInput') {
     scheduleMove(currentNumber)
   }
