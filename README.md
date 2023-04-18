@@ -22,6 +22,8 @@ considered.
 
 Visit http://localhost:8080 and follow the on-screen instructions.
 
+You can also play in my hosted instance: https://gameofthree.delaguilaluis.com
+
 ## Diagrams
 
 ### Components
@@ -158,7 +160,3 @@ Broadcasted when the game ends.
 ## Assumptions
 
 * The random number generated in the first turn should be between 0 and 100.
-
-## Nice to have
-
-* Game of Thrones theme :sunglasses:

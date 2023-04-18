@@ -4,13 +4,17 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="og:title" content="Game of Three" />
+  <meta name="og:type" content="website" />
+  <meta name="og:image" content="https://gameofthree.delaguilaluis.com/logo.png" />
+  <meta name="og:url" content="https://gameofthree.delaguilaluis.com/" />
   <title>Game of Three</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <div id="game">
-    <h1>Game of Three</h1>
-    <details class="options-panel-item vertical-margin">
+    <img id="logo" src="h-logo.png" alt="Game of Three"></img>
+    <details class="options-panel-item margin-vertical">
       <summary class="big-font">Instructions</summary>
       <ul>
         <li>Players should add <code>-1</code>, <code>0</code> or <code>1</code> to the current number to get one that is divisible by 3.</li>
@@ -28,21 +32,21 @@
         <label class="big-font" for="multi">Multiplayer</label>
       </fieldset>
     </div>
-    <div class="vertical-margin">
+    <div class="margin-vertical">
       <p class="no-margin">Player name</p>
       <input id="player" class="margin-right"></input>
-      <button id="start" class="big-font margin-right">Start</button>
-      <button id="leave" class="big-font">Leave</button>
+      <a id="start" class="button big-font margin-right" href="#0">Start</a>
+      <a id="leave" class="button big-font" href="#0">Leave</a>
     </div>
-    <div class="vertical-margin">
+    <div class="margin-vertical">
       <label>Moves:</label>
-      <button id="move-decrease" class="move-button big-font">-1</button>
-      <button id="move-stay" class="move-button big-font">+0</button>
-      <button id="move-increase" class="move-button big-font">+1</button>
+      <a id="move-decrease" class="button xml xmr big-font" href="#0">-1</a>
+      <a id="move-stay" class="button xml xmr big-font" href="#0">+0</a>
+      <a id="move-increase" class="button xml big-font" href="#0">+1</a>
     </div>
     <textarea id="timeline" rows="16" placeholder="Timeline" readonly>
     </textarea>
-    <button id="clear" class="big-font vertical-margin">Clear</button>
+    <a id="clear" class="button big-font margin-vertical" href="#0">Clear</a>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="./index.js"></script>
