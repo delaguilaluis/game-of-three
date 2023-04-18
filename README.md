@@ -1,6 +1,6 @@
 # Game of Three
 
-A code challenge implementation
+A code challenge implementation using Express and Socket.io.
 
 ## Run it
 
@@ -21,6 +21,16 @@ considered.
 ## Play it
 
 Visit http://localhost:8080 and follow the on-screen instructions.
+
+## Diagrams
+
+### Components
+
+![Components diagram](/diagrams/components.png "Components Diagram")
+
+### Sequence
+
+![Sequence diagram](/diagrams/sequence.png "Sequence Diagram")
 
 ## API
 
@@ -156,4 +166,3 @@ Broadcasted when the game ends.
 ### Next steps
 
 * Host it
-* Add diagram

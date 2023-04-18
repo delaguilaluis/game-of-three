@@ -1,0 +1,34 @@
+sequenceDiagram
+    Player 1->>Server: connection(authToken)
+    Server->>Player 1: message(instructions)
+    Player 1->>Server: start(playerName)
+    Server->>Player 1: message(info)
+
+    Player 2->>Server: connection(authToken)
+    Server->>Player 2: message(instructions)
+    Player 2->>Server: start(playerName)
+    par
+        Server->>Player 1: update(details)
+        Server->>Player 2: update(details)
+    end
+
+    Player 2->>Server: move(choice)
+    par
+        Server->>Player 1: update(details)
+        Server->>Player 2: update(details)
+    end
+
+    Player 1->>Server: move(choice)
+    alt valid move
+        par
+            Server->>Player 2: update(details)
+            Server->>Player 1: update(details)
+        end
+    else invalid move
+        Server->>Player 1: error(InvalidInput)
+    end
+
+    par
+        Server->>Player 1: end(winner)
+        Server->>Player 2: end(winner)
+    end
