@@ -1,10 +1,12 @@
 sequenceDiagram
     Player 1->>Server: connection(authToken)
+    Server->>Player 1: connect()
     Server->>Player 1: message(instructions)
     Player 1->>Server: start(playerName)
     Server->>Player 1: message(info)
 
     Player 2->>Server: connection(authToken)
+    Server->>Player 2: connect()
     Server->>Player 2: message(instructions)
     Player 2->>Server: start(playerName)
     par
