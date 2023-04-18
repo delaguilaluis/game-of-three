@@ -4,6 +4,15 @@ function makeListener (io) {
   let number
   let nextPlayerKey
 
+  function getStartingNumber () {
+    // Get starting number; honor random number override
+    const argOverride = Number(process.argv[2])
+    const envOverride = Number(process.env.STARTING_NUMBER)
+
+    // Add 2 to random generated number to avoid starting with 0 or 1
+    return argOverride || envOverride || Math.round(Math.random() * 100) + 2
+  }
+
   function isBotPlaying () {
     return Boolean(players[BOT])
   }
@@ -26,11 +35,6 @@ function makeListener (io) {
   }
 
   function finishGame (winner) {
-    // No game was ongoing
-    if (!Object.keys(players).length) {
-      return
-    }
-
     io.emit('end', winner)
     players = {}
     nextPlayerKey = null
@@ -78,46 +82,68 @@ function makeListener (io) {
       finishGame()
     }
 
-    socket.emit('message', "To start a game, emit a `start` event with your name, e.g. socket.emit('start', 'Luis')")
-
-    socket.on('start', (playerName, options = {}) => {
+    /**
+     * Signals whether starting a game is valid.
+     * As a side-effect, it emits the reason to the `message` channel
+     * @param {object} options
+     * @returns boolean
+     */
+    function validateStart (options) {
       if (!token) {
         socket.emit('message', 'Game start failed. Did you send an auth token?')
-        return
+        return false
       }
 
       if (Object.keys(players).length > 1) {
-        socket.emit('message', 'Another game is in progress. Please wait for it to finish.')
-        return
+        socket.emit(
+          'message',
+          'Another game is in progress. Please wait for it to finish.'
+        )
+
+        return false
       }
 
       if (Object.keys(players).length === 1 && !options.multiplayer) {
-        socket.emit('message', `${Object.values(players)[0]} is waiting in queue for a multiplayer game.`)
-        return
+        const player = Object.values(players)[0]
+        socket.emit(
+          'message',
+          `${player} is waiting in queue for a multiplayer game.`
+        )
+
+        return false
       }
 
+      const { playerName } = options
       if (Object.values(players).includes(playerName)) {
         socket.emit('message', `There's already a player named ${playerName}.`)
+        return false
+      }
+
+      return true
+    }
+
+    socket.emit('message', "To start a game, emit a `start` event with your name, e.g. socket.emit('start', 'Luis')")
+
+    socket.on('start', (playerName, options = {}) => {
+      if (!validateStart({ ...options, playerName })) {
         return
       }
 
       players[token] = playerName
 
       if (options.multiplayer && Object.keys(players).length < 2) {
-        io.emit('message', `${playerName} is ready to play. Waiting for another player...`)
+        io.emit(
+          'message',
+          `${playerName} is ready to play. Waiting for another player...`
+        )
+
         return
       }
 
       io.emit('message', 'Game started!')
+      number = getStartingNumber()
 
-      // Get starting number; honor random number override
-      const argOverride = Number(process.argv[2])
-      const envOverride = Number(process.env.STARTING_NUMBER)
-
-      // Add 2 to random generated number to avoid starting with 0 or 1
-      number = argOverride || envOverride || Math.round(Math.random() * 100) + 2
-
-      // Starts the game when the second player joins
+      // Human vs human; make first move.
       if (options.multiplayer) {
         // Find the player 1
         const p1Key = Object.keys(players).find((key) => key !== token)
@@ -127,7 +153,6 @@ function makeListener (io) {
         })
 
         setNextTurn(token)
-
         return
       }
 
@@ -175,7 +200,7 @@ function makeListener (io) {
         return
       }
 
-      // Find the player 2
+      // Multiplayer scenario; Find the player 2 and assign the next turn.
       const p2Key = Object.keys(players).find((key) => key !== token)
       setNextTurn(p2Key)
     })

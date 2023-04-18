@@ -182,6 +182,64 @@ test('when a single player game starts and the player leaves', (t) => {
   })
 })
 
+test('when a game is in progress and a multiplayer game start is requested', (t) => {
+  t.plan(1)
+
+  clientSocket.emit('start', 'Luis')
+  clientSocket.once('update', () => {
+    clientSocket.emit('start', 'Andres')
+  })
+
+  clientSocket.on('message', (msg) => {
+    if (msg.includes('started') || msg.includes('Waiting for a move')) {
+      return
+    }
+
+    if (msg.includes('in progress')) {
+      t.pass('another game should not be able to be started')
+
+      clientSocket.emit('leave')
+      clientSocket.removeAllListeners('message')
+    }
+  })
+})
+
+test('when a player is queueing a multiplayer game and a single game start is requested', (t) => {
+  t.plan(1)
+
+  clientSocket.emit('start', 'Luis', { multiplayer: true })
+
+  clientSocket.on('message', (msg) => {
+    if (msg.includes('ready')) {
+      clientSocket.emit('start', 'Andres', { multiplayer: false })
+    }
+
+    if (msg.includes('in queue')) {
+      t.pass('the player should be notified that someone else is in queue')
+
+      clientSocket.removeAllListeners('message')
+    }
+  })
+})
+
+test('when a player attempts to use a repeated name', (t) => {
+  t.plan(1)
+
+  clientSocket.emit('start', 'Luis', { multiplayer: true })
+
+  clientSocket.on('message', (msg) => {
+    if (msg.includes('ready')) {
+      clientSocket.emit('start', 'Luis', { multiplayer: true })
+    }
+
+    if (msg.includes('already a player named Luis')) {
+      t.pass('the player should be notified that someone is already using it')
+
+      clientSocket.removeAllListeners('message')
+    }
+  })
+})
+
 test.onFinish(() => {
   io.close()
   clientSocket.close()

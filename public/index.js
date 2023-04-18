@@ -81,6 +81,7 @@ const socket = io({
 })
 
 socket.on('message', (message) => {
+  // Filter out initial instructions
   if (message.startsWith('To start a game')) {
     return
   }
