@@ -162,7 +162,3 @@ Broadcasted when the game ends.
 ## Nice to have
 
 * Game of Thrones theme :sunglasses:
-
-### Next steps
-
-* Host it

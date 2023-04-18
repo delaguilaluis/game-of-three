@@ -10,17 +10,21 @@
     "tape": "tape 'tests/**/*.js'",
     "coverage": "nyc npm run tape",
     "coverage-report": "echo find the coverage report under coverage/index.html",
-    "test": "npm run lint && npm run coverage"
+    "test": "npm run lint && npm run coverage",
+    "bundle": "zip -r game-of-three.zip . -x 'node_modules/*' -x '.git/*' -x 'coverage/*' -x '.nyc*'",
+    "deploy": "npm run bundle && cd ../cdk-eb-infra-game-of-three && mv ../game-of-three/game-of-three.zip . && cdk deploy"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/delaguilaluis/game-of-three.git"
   },
   "keywords": [
+    "multiplayer",
     "game",
     "three",
     "code",
-    "challenge"
+    "challenge",
+    "websockets"
   ],
   "author": "Luis Del Águila <luis@delaguilaluis.com>",
   "license": "MIT",
@@ -28,6 +32,9 @@
     "url": "https://github.com/delaguilaluis/game-of-three/issues"
   },
   "homepage": "https://github.com/delaguilaluis/game-of-three#readme",
+  "engines": {
+    "node": "16"
+  },
   "devDependencies": {
     "nodemon": "^2.0.22",
     "nyc": "^15.1.0",
